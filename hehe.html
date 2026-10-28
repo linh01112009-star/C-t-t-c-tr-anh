@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Góc Học Tiếng Anh - Cute English Quiz</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pastel: {
+                            blue: '#E0F2FE',
+                            light: '#F0F9FF',
+                            border: '#BAE6FD',
+                            primary: '#0284C7',
+                            dark: '#0369A1',
+                            accent: '#38BDF8',
+                            pink: '#FCE7F3',
+                            mint: '#D1FAE5'
+                        }
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        nunito: ['Nunito', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #F0F9FF;
+            background-image: radial-gradient(#BAE6FD 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+        }
+        .font-fredoka { font-family: 'Fredoka', sans-serif; }
+        .cute-card {
+            background: #ffffff;
+            border: 3px solid #BAE6FD;
+            box-shadow: 0 8px 20px -6px rgba(186, 230, 253, 0.6);
+            border-radius: 20px;
+        }
+        .cute-btn {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 0 0 #0284C7;
+        }
+        .cute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 0 #0284C7;
+        }
+        .cute-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 0 #0284C7;
+        }
+        .cute-input {
+            border: 2px solid #BAE6FD;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .cute-input:focus {
+            border-color: #0284C7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+        }
+        .tab-btn {
+            transition: all 0.2s;
+            border-radius: 14px;
+        }
+        .tab-btn.active {
+            background-color: #0284C7;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E0F2FE;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38BDF8;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-slate-700 min-h-screen flex flex-col justify-between">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b-4 border-pastel-border shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center gap-3">
+                <div class="bg-pastel-blue text-pastel-primary p-2.5 rounded-2xl text-2xl animate-bounce">
+                    🐾
+                </div>
+                <div>
+                    <h1 class="font-fredoka text-xl md:text-2xl font-bold text-pastel-dark flex items-center gap-2">
+                        English Practice <span class="text-xs bg-pastel-pink text-pink-600 px-2 py-0.5 rounded-full">Super Cute</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 font-semibold">Luyện tập 10 chuyên đề ngữ pháp & đọc hiểu</p>
+                </div>
+            </div>
+
+            <!-- Global Actions -->
+            <div class="flex items-center gap-2">
+                <button onclick="submitAll()" class="cute-btn bg-pastel-primary text-white font-fredoka px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Nộp Bài & Chấm Điểm
+                </button>
+                <button onclick="resetAll()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold px-3 py-2 rounded-xl text-sm transition">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Scrollable Navigation Tabs -->
+        <div class="bg-pastel-light border-t border-pastel-border py-2 px-4 overflow-x-auto shadow-inner">
+            <div class="max-w-6xl mx-auto flex items-center gap-2 min-w-max" id="tabContainer">
+                <!-- Nav items generated via JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Score Floating Banner / Banner Info -->
+    <div class="max-w-6xl mx-auto px-4 pt-6 w-full">
+        <div class="bg-gradient-to-r from-pastel-blue via-sky-100 to-indigo-100 border-2 border-pastel-border rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="bg-white p-3 rounded-full shadow text-3xl">🐶</div>
+                <div>
+                    <h2 class="font-fredoka text-lg text-pastel-dark font-bold" id="currentTopicTitle">Chủ đề 1: Prepositions (Giới từ)</h2>
+                    <p class="text-xs text-slate-600">Hoàn thành các câu bên dưới và nhấn "Nộp Bài" để xem đáp án giải thích chi tiết nhé!</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 bg-white/80 px-4 py-2 rounded-xl border border-pastel-border shadow-xs">
+                <div class="text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tổng Điểm</p>
+                    <p class="font-fredoka text-xl font-bold text-pastel-primary" id="scoreDisplay">0 / 0</p>
+                </div>
+                <div class="h-8 w-px bg-slate-200"></div>
+                <div class="text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tỷ Lệ Đúng</p>
+                    <p class="font-fredoka text-xl font-bold text-emerald-500" id="percentDisplay">0%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
+        <div id="topicContent" class="space-y-6">
+            <!-- Questions rendered dynamically -->
+        </div>
+    </main>
+
+    <!-- Score Summary Modal -->
+    <div id="scoreModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="cute-card p-6 max-w-md w-full text-center relative animate-scaleUp">
+            <div class="text-5xl mb-2" id="modalEmoji">🎉</div>
+            <h3 class="font-fredoka text-2xl text-pastel-dark font-bold mb-1" id="modalTitle">Xuất Sắc!</h3>
+            <p class="text-sm text-slate-500 mb-4" id="modalSub">Bạn đã hoàn thành bài thi cực kỳ xuất sắc!</p>
+
+            <div class="bg-pastel-light border-2 border-pastel-border rounded-xl p-4 mb-5 space-y-2">
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-600">Tổng câu làm:</span>
+                    <span class="font-bold text-slate-800" id="modalTotal">0</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-600">Số câu đúng:</span>
+                    <span class="font-bold text-emerald-600" id="modalCorrect">0</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-600">Số câu sai:</span>
+                    <span class="font-bold text-rose-500" id="modalIncorrect">0</span>
+                </div>
+                <div class="border-t border-slate-200 pt-2 flex justify-between font-bold text-base">
+                    <span class="text-slate-700">Điểm số:</span>
+                    <span class="text-pastel-primary font-fredoka text-xl" id="modalScore">0%</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeModal()" class="w-full cute-btn bg-pastel-primary text-white font-fredoka py-2.5 rounded-xl text-sm font-bold">
+                    Xem Lời Giải Chi Tiết 🔍
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t-2 border-pastel-border py-4 mt-8">
+        <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-400 font-semibold flex flex-col md:flex-row items-center justify-between gap-2">
+            <p>🐾 Góc Học Tiếng Anh - Học Tập Mỗi Ngày Thật Vui!</p>
+            <p>Đã bao gồm đầy đủ 10 chuyên đề bài tập & đáp án chi tiết.</p>
+        </div>
+    </footer>
+
+    <!-- App Logic Script -->
+    <script>
+        // Database of all 10 topics
+        const topics = [
+            {
+                id: 't1',
+                title: '1. Prepositions',
+                badge: 'Giới từ',
+                type: 'fill',
+                boxHint: 'in, on, at, under, over, between, behind, in front of, beside, near, inside, outside, to, from, into, onto',
+                questions: [
+                    { id: 'q1_1', text: '1. The book is _____ the table.', ans: 'on', exp: 'On the table: trên mặt bàn.' },
+                    { id: 'q1_2', text: '2. The cat is hiding _____ the sofa.', ans: 'under', exp: 'Under the sofa: dưới ghế sofa.' },
+                    { id: 'q1_3', text: '3. We will meet you _____ the gate at 5 o\'clock.', ans: 'at', exp: 'At the gate: tại địa điểm cụ thể (tại cổng).' },
+                    { id: 'q1_4', text: '4. The picture is hanging _____ the wall.', ans: 'on', exp: 'On the wall: treo trên tường (bề mặt).' },
+                    { id: 'q1_5', text: '5. The ball rolled _____ the bed.', ans: 'under', exp: 'Rolled under the bed: lăn xuống dưới gầm giường.' },
+                    { id: 'q1_6', text: '6. The keys are _____ the drawer.', ans: 'in', exp: 'In the drawer: ở bên trong ngăn kéo.' },
+                    { id: 'q1_7', text: '7. The children are playing _____ the garden.', ans: 'in', exp: 'In the garden: trong khu vườn.' },
+                    { id: 'q1_8', text: '8. She is sitting _____ her friend and me.', ans: 'between', exp: 'Between her friend and me: ở giữa (2 người/vật).' },
+                    { id: 'q1_9', text: '9. The temple is _____ the hill.', ans: 'on', exp: 'On the hill: trên ngọn đồi.' },
+                    { id: 'q1_10', text: '10. The car is parked _____ the building.', ans: 'in front of', exp: 'In front of the building: phía trước tòa nhà.' },
+                    { id: 'q1_11', text: '11. The dog is _____ the tree.', ans: 'under', exp: 'Under the tree: dưới gốc cây.' },
+                    { id: 'q1_12', text: '12. The shop is _____ the bank.', ans: 'near', exp: 'Near the bank: gần ngân hàng.' },
+                    { id: 'q1_13', text: '13. He jumped _____ the pool.', ans: 'into', exp: 'Jumped into the pool: hành động chuyển động vào bên trong hồ bơi.' },
+                    { id: 'q1_14', text: '14. The letter is addressed _____ my uncle.', ans: 'to', exp: 'Addressed to: gửi đến ai.' },
+                    { id: 'q1_15', text: '15. The bird flew _____ the nest.', ans: 'into', exp: 'Flew into the nest: bay vào bên trong tổ.' }
+                ]
+            },
+            {
+                id: 't2',
+                title: '2. Present Simple',
+                badge: 'Hiện tại đơn',
+                type: 'fill',
+                questions: [
+                    { id: 'q2_1', text: '1. She _____ (go) to school every day.', ans: 'goes', exp: 'Chủ ngữ "She" ngôi thứ 3 số ít -> thêm -es (goes).' },
+                    { id: 'q2_2', text: '2. The sun _____ (rise) in the east.', ans: 'rises', exp: 'The sun là danh từ số ít, sự thật hiển nhiên -> rises.' },
+                    { id: 'q2_3', text: '3. We _____ (like) to play cricket.', ans: 'like', exp: 'Chủ ngữ "We" -> động từ giữ nguyên (like).' },
+                    { id: 'q2_4', text: '4. My father _____ (read) the newspaper in the morning.', ans: 'reads', exp: 'My father (he) là số ít -> reads.' },
+                    { id: 'q2_5', text: '5. The baby _____ (cry) when he is hungry.', ans: 'cries', exp: 'Cry kết thúc bằng phụ âm + y -> đổi y thành i + es (cries).' },
+                    { id: 'q2_6', text: '6. They _____ (watch) television in the evening.', ans: 'watch', exp: 'Chủ ngữ "They" -> động từ nguyên mẫu (watch).' },
+                    { id: 'q2_7', text: '7. I _____ (have) a pet dog.', ans: 'have', exp: 'Chủ ngữ "I" dùng "have".' },
+                    { id: 'q2_8', text: '8. The teacher _____ (explain) the lesson clearly.', ans: 'explains', exp: 'The teacher là chủ ngữ số ít -> thêm -s (explains).' },
+                    { id: 'q2_9', text: '9. He _____ (not like) spicy food.', ans: 'does not like', altAns: ["doesn't like"], exp: 'Phủ định số ít: does not like / doesn\'t like.' },
+                    { id: 'q2_10', text: '10. Birds _____ (fly) in the sky.', ans: 'fly', exp: 'Birds là số nhiều -> động từ nguyên mẫu (fly).' },
+                    { id: 'q2_11', text: '11. You _____ (speak) very politely.', ans: 'speak', exp: 'Chủ ngữ "You" -> động từ giữ nguyên (speak).' },
+                    { id: 'q2_12', text: '12. The train _____ (stop) at every station.', ans: 'stops', exp: 'The train là số ít -> stops.' },
+                    { id: 'q2_13', text: '13. She _____ (help) her mother in the kitchen.', ans: 'helps', exp: 'Chủ ngữ "She" -> thêm -s (helps).' },
+                    { id: 'q2_14', text: '14. Water _____ (boil) at 100 degrees Celsius.', ans: 'boils', exp: 'Water là danh từ không đếm được (số ít) -> boils.' },
+                    { id: 'q2_15', text: '15. We _____ (celebrate) our Independence Day on 15th August.', ans: 'celebrate', exp: 'Chủ ngữ "We" -> động từ giữ nguyên.' }
+                ]
+            },
+            {
+                id: 't3',
+                title: '3. Articles',
+                badge: 'Mạo từ (A/An/The)',
+                type: 'fill_multi',
+                questions: [
+                    { id: 'q3_1', text: '1. [1]_____ sun rises in [2]_____ east.', ans: ['The', 'the'], exp: 'The sun (mặt trời duy nhất) và the east (hướng Đông).' },
+                    { id: 'q3_2', text: '2. I saw [1]_____ elephant in [2]_____ zoo.', ans: ['an', 'the'], altAns: [['an'], ['a']], exp: 'An elephant (nguyên âm /e/). The zoo (hoặc a zoo).' },
+                    { id: 'q3_3', text: '3. She is [1]_____ honest girl.', ans: ['an'], exp: 'Honest có "h" câm, phát âm bằng nguyên âm -> dùng "an".' },
+                    { id: 'q3_4', text: '4. He is reading [1]_____ interesting book.', ans: ['an'], exp: 'Interesting bắt đầu bằng nguyên âm /i/ -> dùng "an".' },
+                    { id: 'q3_5', text: '5. [1]_____ oranges are good for health.', ans: ['-'], altAns: [[''], ['X'], ['x'], ['no']], exp: 'Oranges danh từ số nhiều chỉ chung -> không dùng mạo từ.' },
+                    { id: 'q3_6', text: '6. We visited [1]_____ Taj Mahal last week.', ans: ['the'], exp: 'The Taj Mahal: công trình kiến trúc nổi tiếng dùng "the".' },
+                    { id: 'q3_7', text: '7. This is [1]_____ umbrella.', ans: ['an'], exp: 'Umbrella bắt đầu bằng nguyên âm /ʌ/ -> dùng "an".' },
+                    { id: 'q3_8', text: '8. [1]_____ Ganga is [2]_____ holy river.', ans: ['The', 'a'], exp: 'The Ganga (tên sông dùng The); a holy river (một dòng sông linh thiêng).' },
+                    { id: 'q3_9', text: '9. He is [1]_____ M.L.A.', ans: ['an'], exp: 'Chữ cái M đọc là /em/ (bắt đầu bằng nguyên âm /e/) -> dùng "an".' },
+                    { id: 'q3_10', text: '10. I want to be [1]_____ engineer.', ans: ['an'], exp: 'Engineer bắt đầu bằng nguyên âm /e/ -> dùng "an".' },
+                    { id: 'q3_11', text: '11. She has [1]_____ red bag.', ans: ['a'], exp: 'Red bắt đầu bằng phụ âm /r/ -> dùng "a".' },
+                    { id: 'q3_12', text: '12. They live in [1]_____ small village.', ans: ['a'], exp: 'A small village: một ngôi làng nhỏ chưa xác định.' },
+                    { id: 'q3_13', text: '13. [1]_____ moon shines at night.', ans: ['The'], exp: 'The moon: mặt trăng (vật thể duy nhất).' },
+                    { id: 'q3_14', text: '14. I bought [1]_____ apple and [2]_____ banana.', ans: ['an', 'a'], exp: 'An apple (nguyên âm); a banana (phụ âm).' },
+                    { id: 'q3_15', text: '15. [1]_____ Himalayas are very high.', ans: ['The'], exp: 'The Himalayas: tên dãy núi dùng "the".' }
+                ]
+            },
+            {
+                id: 't4',
+                title: '4. Verbs Practice',
+                badge: 'Chia động từ',
+                type: 'fill',
+                questions: [
+                    { id: 'q4_1', text: '1. The boy _____ (fly) a kite in the park.', ans: 'flies', altAns: ['is flying'], exp: 'Chủ ngữ số ít: flies hoặc is flying.' },
+                    { id: 'q4_2', text: '2. My mother _____ (cook) tasty food for us.', ans: 'cooks', exp: 'Thói quen/hành động thường xuyên: cooks.' },
+                    { id: 'q4_3', text: '3. She _____ (do) her homework every day.', ans: 'does', exp: 'She -> does.' },
+                    { id: 'q4_4', text: '4. The sun _____ (rise) in the east.', ans: 'rises', exp: 'Sự thật hiển nhiên: rises.' },
+                    { id: 'q4_5', text: '5. The children _____ (play) in the playground.', ans: 'play', altAns: ['are playing'], exp: 'Children số nhiều: play.' },
+                    { id: 'q4_6', text: '6. I _____ (go) to school by bus.', ans: 'go', exp: 'I + V nguyên mẫu: go.' },
+                    { id: 'q4_7', text: '7. The baby _____ (sleep) sweetly in the cradle.', ans: 'sleeps', exp: 'Baby số ít -> sleeps.' },
+                    { id: 'q4_8', text: '8. Please _____ (close) the door.', ans: 'close', exp: 'Câu mệnh lệnh: Please + V nguyên mẫu.' },
+                    { id: 'q4_9', text: '9. The farmer _____ (work) hard in the field.', ans: 'works', exp: 'Farmer số ít -> works.' },
+                    { id: 'q4_10', text: '10. They _____ (build) a new house last year.', ans: 'built', exp: 'Dấu hiệu "last year" -> quá khứ đơn (built).' },
+                    { id: 'q4_11', text: '11. He _____ (sing) a beautiful song.', ans: 'sings', exp: 'He -> sings.' },
+                    { id: 'q4_12', text: '12. We _____ (wash) our hands before eating.', ans: 'wash', exp: 'We -> wash.' },
+                    { id: 'q4_13', text: '13. The dog _____ (bark) at the stranger.', ans: 'barks', exp: 'The dog -> barks.' },
+                    { id: 'q4_14', text: '14. The teacher _____ (explain) the lesson clearly.', ans: 'explains', exp: 'The teacher -> explains.' },
+                    { id: 'q4_15', text: '15. I _____ (drink) a glass of milk every morning.', ans: 'drink', exp: 'I -> drink.' }
+                ]
+            },
+            {
+                id: 't5',
+                title: '5. Determiners',
+                badge: 'Từ hạn định',
+                type: 'fill',
+                boxHint: 'this, that, these, those, a, an, the, some, any, much, many, few, little, each, every, either, neither, all, both, several, such',
+                questions: [
+                    { id: 'q5_1', text: '1. _____ book on the table is mine.', ans: 'This', altAns: ['That', 'The'], exp: 'This/That/The book: quyển sách này/kia/đã xác định.' },
+                    { id: 'q5_2', text: '2. I need _____ pencil to draw.', ans: 'a', exp: 'A pencil: một cây bút chì.' },
+                    { id: 'q5_3', text: '3. _____ of the students have finished their work.', ans: 'All', altAns: ['Some', 'Many'], exp: 'All of the students: tất cả học sinh.' },
+                    { id: 'q5_4', text: '4. There isn\'t _____ milk left in the fridge.', ans: 'much', altAns: ['any'], exp: 'Milk là không đếm được, dùng trong câu phủ định: much/any.' },
+                    { id: 'q5_5', text: '5. _____ two boys are my best friends.', ans: 'Those', altAns: ['These', 'Both'], exp: 'Those/These/Both two boys: hai cậu bé đó/này.' },
+                    { id: 'q5_6', text: '6. She has _____ interesting story to tell.', ans: 'an', exp: 'An interesting story.' },
+                    { id: 'q5_7', text: '7. Do you have _____ idea to solve this problem?', ans: 'any', altAns: ['an'], exp: 'Any idea (trong câu hỏi) hoặc an idea.' },
+                    { id: 'q5_8', text: '8. We saw _____ elephants in the zoo.', ans: 'some', altAns: ['many', 'several'], exp: 'Some/Many elephants.' },
+                    { id: 'q5_9', text: '9. He gave me _____ useful advice.', ans: 'some', exp: 'Advice không đếm được -> dùng some.' },
+                    { id: 'q5_10', text: '10. You can take _____ apple from the basket.', ans: 'an', altAns: ['any'], exp: 'An apple hoặc any apple.' },
+                    { id: 'q5_11', text: '11. There are _____ clouds in the sky.', ans: 'many', altAns: ['some'], exp: 'Many/Some clouds.' },
+                    { id: 'q5_12', text: '12. _____ of the water spilled on the floor.', ans: 'Some', altAns: ['Much', 'All'], exp: 'Some of the water: một phần nước.' },
+                    { id: 'q5_13', text: '13. I don\'t like _____ of these options.', ans: 'any', exp: 'I don\'t like any of... (trong câu phủ định).' },
+                    { id: 'q5_14', text: '14. She did well in _____ subjects.', ans: 'several', altAns: ['all', 'many'], exp: 'Several/All subjects.' },
+                    { id: 'q5_15', text: '15. _____ of the cakes has been eaten.', ans: 'Each', altAns: ['One'], exp: 'Each of + danh từ số nhiều đi với động từ số ít (has).' }
+                ]
+            },
+            {
+                id: 't6',
+                title: '6. Conjunctions',
+                badge: 'Liên từ',
+                type: 'fill',
+                boxHint: 'and, but, or, because, so, although, if, while, when, after, before, until, unless, as soon as, since, that',
+                questions: [
+                    { id: 'q6_1', text: '1. I wanted to go out, _____ it was raining.', ans: 'but', exp: 'Mối quan hệ tương phản: muốn đi chơi nhưng trời mưa.' },
+                    { id: 'q6_2', text: '2. She studied hard _____ she could pass the test.', ans: 'so', altAns: ['so that', 'because'], exp: 'So / so that chỉ mục đích hoặc kết quả.' },
+                    { id: 'q6_3', text: '3. Would you like tea _____ coffee?', ans: 'or', exp: 'Lựa chọn: trà hay cà phê.' },
+                    { id: 'q6_4', text: '4. He was tired _____ he finished his homework.', ans: 'after', altAns: ['although'], exp: 'After: sau khi hoàn thành bài tập.' },
+                    { id: 'q6_5', text: '5. They stayed indoors _____ it was too cold outside.', ans: 'because', exp: 'Lý do: vì bên ngoài quá lạnh.' },
+                    { id: 'q6_6', text: '6. I will call you _____ I reach home.', ans: 'when', altAns: ['as soon as'], exp: 'When / As soon as: khi / ngay khi về đến nhà.' },
+                    { id: 'q6_7', text: '7. _____ you help me, I will be very thankful.', ans: 'If', exp: 'Câu điều kiện: If (Nếu bạn giúp tôi).' },
+                    { id: 'q6_8', text: '8. He did not go to school _____ he was sick.', ans: 'because', exp: 'Because: vì bị ốm.' },
+                    { id: 'q6_9', text: '9. We waited _____ the train arrived.', ans: 'until', exp: 'Until: cho đến khi tàu đến.' },
+                    { id: 'q6_10', text: '10. Ria was reading a book _____ her brother was watching TV.', ans: 'while', exp: 'While: trong khi 2 hành động diễn ra song song.' },
+                    { id: 'q6_11', text: '11. You must wear a helmet _____ you ride a bike.', ans: 'before', altAns: ['when'], exp: 'Before/When: trước khi/khi đi xe đạp.' },
+                    { id: 'q6_12', text: '12. She didn\'t come to the party _____ she was invited.', ans: 'although', exp: 'Although: mặc dù cô ấy đã được mời.' },
+                    { id: 'q6_13', text: '13. We will leave _____ the meeting is over.', ans: 'after', altAns: ['when'], exp: 'After: sau khi cuộc họp kết thúc.' },
+                    { id: 'q6_14', text: '14. He ran fast _____ he might miss the bus.', ans: 'because', altAns: ['so that'], exp: 'Chỉ nguyên do hoặc mục đích.' },
+                    { id: 'q6_15', text: '15. I was hungry, _____ I ate an apple.', ans: 'so', exp: 'So: kết quả (vì vậy tôi đã ăn táo).' }
+                ]
+            },
+            {
+                id: 't7',
+                title: '7. Mixed Tenses Practice',
+                badge: 'Trắc nghiệm tổng hợp các thì',
+                type: 'mcq',
+                questions: [
+                    { id: 'q7_1', text: '1. The botanist carefully _____ the rare orchid species in her laboratory three days ago.', opts: ['A) examined', 'B) examines', 'C) is examining', 'D) was examining'], ans: 'A', exp: 'Three days ago -> Quá khứ đơn: examined.' },
+                    { id: 'q7_2', text: '2. Look! The drone _____ high-definition footage of the coastline at this very moment.', opts: ['A) captures', 'B) is capturing', 'C) captured', 'D) was capturing'], ans: 'B', exp: 'Look! / at this very moment -> Hiện tại tiếp diễn: is capturing.' },
+                    { id: 'q7_3', text: '3. Our school robotics club consistently _____ top awards in national engineering competitions every year.', opts: ['A) is winning', 'B) was winning', 'C) wins', 'D) won'], ans: 'C', exp: 'Consistently / every year -> Thói quen, sự việc lặp lại: wins.' },
+                    { id: 'q7_4', text: '4. As the stormy winds howled, the brave sailors _____ the heavy ship sails against the gale.', opts: ['A) secure', 'B) are securing', 'C) secured', 'D) were securing'], ans: 'D', exp: 'As... howled -> Hành động đang diễn ra song song trong quá khứ: were securing.' },
+                    { id: 'q7_5', text: '5. The young programmer was updating the database when an unexpected system crash _____ the network.', opts: ['A) interrupts', 'B) interrupted', 'C) is interrupting', 'D) was interrupting'], ans: 'B', exp: 'Was updating... when -> Hành động đang diễn ra thì hành động khác xen vào (Quá khứ đơn: interrupted).' },
+                    { id: 'q7_6', text: '6. Listen! The talented orchestra _____ a complex symphony on stage right now.', opts: ['A) performs', 'B) performed', 'C) is performing', 'D) was performing'], ans: 'C', exp: 'Listen! / right now -> Hiện tại tiếp diễn: is performing.' },
+                    { id: 'q7_7', text: '7. Experienced deep-sea divers normally _____ specialized oxygen tanks before diving below fifty meters.', opts: ['A) check', 'B) checked', 'C) are checking', 'D) were checking'], ans: 'A', exp: 'Normally -> Thói quen (Hiện tại đơn): check.' },
+                    { id: 'q7_8', text: '8. The construction team _____ the foundations for the new bridge all day yesterday.', opts: ['A) pours', 'B) was pouring', 'C) is pouring', 'D) poured'], ans: 'D', exp: 'All day yesterday -> Sự việc xảy ra trong quá khứ: poured.' },
+                    { id: 'q7_9', text: '9. Modern satellite networks regularly _____ real-time weather updates to flight navigators worldwide.', opts: ['A) sent', 'B) send', 'C) are sending', 'D) were sending'], ans: 'B', exp: 'Regularly -> Tần suất lặp lại (Hiện tại đơn): send.' },
+                    { id: 'q7_10', text: '10. Shh! The wildlife photographers _____ the sleeping lion family in the valley currently.', opts: ['A) observe', 'B) observed', 'C) were observing', 'D) are observing'], ans: 'D', exp: 'Shh! / currently -> Hành động đang diễn ra: are observing.' },
+                    { id: 'q7_11', text: '11. Right now, the mechanic _____ my father\'s car in the garage.', opts: ['A) is repairing', 'B) repaired', 'C) repairs', 'D) will repair'], ans: 'A', exp: 'Right now -> Hiện tại tiếp diễn: is repairing.' },
+                    { id: 'q7_12', text: '12. Before she moved to Cairo, Maya _____ in Alexandria for five years.', opts: ['A) lives', 'B) had lived', 'C) is living', 'D) will live'], ans: 'B', exp: 'Xảy ra trước một thời điểm/hành động trong quá khứ -> Quá khứ hoàn thành: had lived.' },
+                    { id: 'q7_13', text: '13. Water _____ into ice when the temperature drops below zero degrees Celsius.', opts: ['A) turned', 'B) is turning', 'C) turns', 'D) will turn'], ans: 'C', exp: 'Sự thật khoa học hiển nhiên -> Hiện tại đơn: turns.' },
+                    { id: 'q7_14', text: '14. By the time we arrive at the stadium tonight, the match _____.', opts: ['A) started', 'B) starts', 'C) is starting', 'D) will have started'], ans: 'D', exp: 'By the time + hiện tại -> Tương lai hoàn thành: will have started.' }
+                ]
+            },
+            {
+                id: 't8',
+                title: '8. Conditionals Quiz',
+                badge: 'Câu điều kiện 1, 2, 3',
+                type: 'mcq',
+                questions: [
+                    { id: 'q8_1', text: '1. If it _____ tomorrow, we will cancel the outdoor barbecue.', opts: ['A) rains', 'B) rained', 'C) had rained', 'D) will rain'], ans: 'A', exp: 'Điều kiện loại 1: If + Present Simple (rains), Will + V.' },
+                    { id: 'q8_2', text: '2. If I _____ you, I would take that job offer immediately.', opts: ['A) am', 'B) were', 'C) had been', 'D) will be'], ans: 'B', exp: 'Điều kiện loại 2 (giả định trái thực tế hiện tại): If I were you.' },
+                    { id: 'q8_3', text: '3. If they had checked the weather forecast, they _____ an umbrella yesterday.', opts: ['A) will bring', 'B) would bring', 'C) would have brought', 'D) brought'], ans: 'C', exp: 'Điều kiện loại 3 (trái quá khứ): If + had V3, S + would have V3.' },
+                    { id: 'q8_4', text: '4. She will miss her flight if she _____ at the airport soon.', opts: ['A) doesn\'t arrive', 'B) didn\'t arrive', 'C) hadn\'t arrived', 'D) won\'t arrive'], ans: 'A', exp: 'Điều kiện loại 1: Mệnh đề If dùng Hiện tại đơn (doesn\'t arrive).' },
+                    { id: 'q8_5', text: '5. What _____ if you won a million dollars today?', opts: ['A) will you do', 'B) would you do', 'C) had you done', 'D) do you do'], ans: 'B', exp: 'Điều kiện loại 2 (won): Main clause dùng would + V (would you do).' },
+                    { id: 'q8_6', text: '6. If we _____ the train earlier last night, we wouldn\'t have missed the opening show.', opts: ['A) catch', 'B) caught', 'C) had caught', 'D) will catch'], ans: 'C', exp: 'Điều kiện loại 3: If + Quá khứ hoàn thành (had caught).' },
+                    { id: 'q8_7', text: '7. If you finish your homework on time, I _____ you go to the movie theater.', opts: ['A) let', 'B) will let', 'C) would let', 'D) had let'], ans: 'B', exp: 'Điều kiện loại 1: Finish (HTĐ) -> Will let (TLĐ).' },
+                    { id: 'q8_8', text: '8. If he studied harder, he _____ much better grades this semester.', opts: ['A) gets', 'B) will get', 'C) would get', 'D) had gotten'], ans: 'C', exp: 'Điều kiện loại 2: Studied -> Would get.' },
+                    { id: 'q8_9', text: '9. If I _____ that you were in the hospital last week, I would have visited you.', opts: ['A) know', 'B) knew', 'C) had known', 'D) have known'], ans: 'C', exp: 'Điều kiện loại 3: Had known ... would have visited.' },
+                    { id: 'q8_10', text: '10. You _____ cold if you don\'t put on a warm jacket right now.', opts: ['A) will get', 'B) would get', 'C) got', 'D) would have gotten'], ans: 'A', exp: 'Điều kiện loại 1: Don\'t put -> Will get.' },
+                    { id: 'q8_11', text: '11. If gravity suddenly stopped working, everything on Earth _____ into space.', opts: ['A) floats', 'B) will float', 'C) would float', 'D) had floated'], ans: 'C', exp: 'Điều kiện loại 2 (stopped): Would float.' },
+                    { id: 'q8_12', text: '12. If the team had practiced more before the final match, they _____ the championship.', opts: ['A) win', 'B) will win', 'C) would win', 'D) would have won'], ans: 'D', exp: 'Điều kiện loại 3 (had practiced): Would have won.' }
+                ]
+            },
+            {
+                id: 't9',
+                title: '9. Phrasal Verbs',
+                badge: 'Cụm động từ trong ngữ cảnh',
+                type: 'mcq',
+                questions: [
+                    { id: 'q9_1', text: '1. The storm caused the power lines to _____ across the entire town.', opts: ['a) go off', 'b) go out', 'c) go down', 'd) go through'], ans: 'B', exp: 'Go out: tắt (điện, đèn).' },
+                    { id: 'q9_2', text: '2. You should always _____ your computer files on an external drive to avoid losing data.', opts: ['a) back up', 'b) back out', 'c) back down', 'd) back off'], ans: 'A', exp: 'Back up: sao lưu dữ liệu.' },
+                    { id: 'q9_3', text: '3. The flight was delayed, but we finally managed to _____ at midnight.', opts: ['a) take up', 'b) take off', 'c) take in', 'd) take over'], ans: 'B', exp: 'Take off: máy bay cất cánh.' },
+                    { id: 'q9_4', text: '4. It is essential to _____ a detailed plan before launching a new project.', opts: ['a) draw up', 'b) draw out', 'c) draw back', 'd) draw in'], ans: 'A', exp: 'Draw up: soạn thảo, lập kế hoạch.' },
+                    { id: 'q9_5', text: '5. She decided to _____ from her position as head of the department.', opts: ['a) step in', 'b) step back', 'c) step down', 'd) step out'], ans: 'C', exp: 'Step down: từ chức, rút lui.' },
+                    { id: 'q9_6', text: '6. The noise from the street started to _____ as night fell.', opts: ['a) die off', 'b) die out', 'c) die down', 'd) die away'], ans: 'C', exp: 'Die down: lắng xuống, dịu đi (tiếng ồn).' },
+                    { id: 'q9_7', text: '7. He managed to _____ the strict security system without being noticed.', opts: ['a) get around', 'b) get away', 'c) get by', 'd) get through'], ans: 'A', exp: 'Get around: lách qua, vượt qua rào cản.' },
+                    { id: 'q9_8', text: '8. Don\'t let a small mistake _____ you from achieving your goals.', opts: ['a) hold back', 'b) hold off', 'c) hold on', 'd) hold up'], ans: 'A', exp: 'Hold back: cản trở, giữ lại.' },
+                    { id: 'q9_9', text: '9. The company decided to _____ several new employees to handle the extra workload.', opts: ['a) take on', 'b) take in', 'c) take over', 'd) take off'], ans: 'A', exp: 'Take on: tuyển dụng thêm nhân sự.' },
+                    { id: 'q9_10', text: '10. After reviewing the evidence, the judge decided to _____ the case.', opts: ['a) throw out', 'b) throw away', 'c) throw up', 'd) throw off'], ans: 'A', exp: 'Throw out: bác bỏ (vụ kiện).' },
+                    { id: 'q9_11', text: '11. They had to _____ the meeting until next Tuesday because the director was ill.', opts: ['a) push back', 'b) push forward', 'c) push through', 'd) push off'], ans: 'A', exp: 'Push back: hoãn lại, dời lịch.' },
+                    { id: 'q9_12', text: '12. It took the negotiators hours to _____ an agreement between the two parties.', opts: ['a) bring about', 'b) bring off', 'c) bring round', 'd) bring out'], ans: 'A', exp: 'Bring about: đem lại, đạt được kết quả.' },
+                    { id: 'q9_13', text: '13. The car started to _____ smoke from under the hood.', opts: ['a) give in', 'b) give off', 'c) give out', 'd) give up'], ans: 'B', exp: 'Give off: tỏa ra, phát ra (khói, mùi).' },
+                    { id: 'q9_14', text: '14. We need to _____ all potential risks before making a final investment decision.', opts: ['a) weigh up', 'b) weigh down', 'c) weigh in', 'd) weigh out'], ans: 'A', exp: 'Weigh up: cân nhắc, đánh giá các yếu tố.' }
+                ]
+            },
+            {
+                id: 't10',
+                title: '10. Reading & Passages',
+                badge: 'Bài đọc & Đục lỗ',
+                type: 'reading_combined',
+                sections: [
+                    {
+                        title: '📖 Passage 1: Leo Tolstoy - The Writer Who Explored the Human Heart',
+                        content: `Leo Tolstoy was one of the greatest novelists in world literature. He was born on September 9, 1828, into a wealthy family at Yasnaya Polyana, an estate in Russia. Although he lost his parents when he was young, he continued his education and developed a strong interest in literature, history, and philosophy. His experiences later influenced the characters and ideas in his famous novels.<br><br>Tolstoy became internationally famous for writing <i>War and Peace</i> and <i>Anna Karenina</i>. Published in 1869, <i>War and Peace</i> describes the lives of several Russian families during the Napoleonic Wars. It explores love, friendship, family, courage, and the effects of war on ordinary people. <i>Anna Karenina</i>, published in 1877, tells the story of a woman whose personal choices bring her into conflict with the rules of society.<br><br>As Tolstoy grew older, his views about life began to change. He questioned wealth, fame, and the meaning of happiness. He became increasingly interested in simple living, honesty, compassion, and helping others. His religious and philosophical ideas led him to criticize violence and social inequality. These beliefs influenced many people around the world, including Mahatma Gandhi.<br><br>Tolstoy died on November 20, 1910, at the age of 82. More than a century later, his works continue to be read and discussed worldwide.`,
+                        questions: [
+                            { id: 'q10_1', text: '1. Where was Leo Tolstoy born?', opts: ['A. In France', 'B. In Russia', 'C. In England', 'D. In India'], ans: 'B', exp: 'Tolstoy sinh ra tại trang trại Yasnaya Polyana ở Nga (Russia).' },
+                            { id: 'q10_2', text: '2. Which novel describes the lives of several Russian families during the Napoleonic Wars?', opts: ['A. Anna Karenina', 'B. War and Peace', 'C. The Brothers Karamazov', 'D. Crime and Punishment'], ans: 'B', exp: 'Tác phẩm Chiến tranh và Hòa bình (War and Peace) mô tả cuộc sống các gia đình Nga thời chiến tranh Napoleon.' },
+                            { id: 'q10_3', text: '3. What did Tolstoy become more interested in as he grew older?', opts: ['A. Fame and wealth', 'B. Simple living and helping others', 'C. Writing short stories', 'D. Traveling to other countries'], opts: ['A. Fame and wealth', 'B. Simple living and helping others', 'C. Writing short stories', 'D. Traveling to other countries'], ans: 'B', exp: 'Khi về già ông quan tâm đến cuộc sống đơn giản, lòng nhân ái và giúp đỡ người khác.' },
+                            { id: 'q10_4', text: '4. Who admired Tolstoy\'s ideas about nonviolence?', opts: ['A. Queen Victoria', 'B. Mahatma Gandhi', 'C. Napoleon', 'D. Albert Einstein'], ans: 'B', exp: 'Mahatma Gandhi là người rất ngưỡng mộ tư tưởng phi bạo lực của Tolstoy.' },
+                            { id: 'q10_5', text: '5. What is the main idea of the passage?', opts: ['A. Tolstoy\'s family life', 'B. Tolstoy\'s most famous characters', 'C. Tolstoy\'s life, works, and beliefs', 'D. The history of Russia'], ans: 'C', exp: 'Bài viết bao quát về cuộc đời, tác phẩm nghệ thuật và niềm tin triết học của Leo Tolstoy.' }
+                        ]
+                    },
+                    {
+                        title: '🥤 Passage 2: Should we drink warm water with honey for breakfast?',
+                        content: `<b>Summary & Vocabulary Guide:</b><br>
+                        • <i>comparable to</i>: tương đương, có thể so sánh với<br>
+                        • <i>unscientific</i>: thiếu cơ sở khoa học<br>
+                        • <i>sudden spike / subsequent drop</i>: sự tăng đột ngột / giảm xuống sau đó<br>
+                        • <i>kickstart</i>: khởi động, kích hoạt hệ tiêu hóa<br>
+                        • <i>essential nutrients</i>: dưỡng chất thiết yếu<br><br>
+                        <b>Reading Text:</b><br>
+                        Not eating breakfast and only drinking warm water with honey is a habit for many, thanks to the high amount of energy from honey - <b>comparable to</b> other kinds of food. However, this diet is <b>unscientific</b>. Honey has a large amount of sugar (100g honey contains 81.3g sugar). This creates a sudden spike and subsequent drop in sugar level, making you crave more food.<br>Everyone can drink warm water with honey to <b>kickstart</b> the digestive system, but you still need to eat a proper breakfast!`,
+                        questions: [
+                            { id: 'q10_6', text: '6. Is only drinking honey water without eating breakfast considered scientific?', opts: ['A. Yes, it is very scientific', 'B. No, it is unscientific', 'C. It is recommended by all doctors', 'D. It has no sugar'], ans: 'B', exp: 'Bài đọc nêu rõ chế độ này là "unscientific" (thiếu cơ sở khoa học).' },
+                            { id: 'q10_7', text: '7. How much sugar does 100g of honey contain?', opts: ['A. 10g', 'B. 50g', 'C. 81.3g', 'D. 100g'], ans: 'C', exp: '100g mật ong chứa 81.3g đường.' }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        let currentTopicIdx = 0;
+        let userAnswers = {};
+
+        // Initialize App
+        window.onload = function() {
+            renderTabs();
+            renderTopic(0);
+            updateScoreBar();
+        };
+
+        // Render Tabs
+        function renderTabs() {
+            const container = document.getElementById('tabContainer');
+            container.innerHTML = topics.map((t, idx) => `
+                <button onclick="switchTopic(${idx})" class="tab-btn px-3 py-1.5 text-xs font-semibold whitespace-nowrap border border-pastel-border bg-white text-slate-600 hover:bg-pastel-blue hover:text-pastel-dark ${idx === 0 ? 'active' : ''}">
+                    ${t.title}
+                </button>
+            `).join('');
+        }
+
+        // Switch Active Topic Tab
+        function switchTopic(idx) {
+            currentTopicIdx = idx;
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                if (i === idx) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            document.getElementById('currentTopicTitle').innerText = topics[idx].title + ' (' + topics[idx].badge + ')';
+            renderTopic(idx);
+        }
+
+        // Render Topic Questions
+        function renderTopic(idx) {
+            const topic = topics[idx];
+            const container = document.getElementById('topicContent');
+
+            if (topic.type === 'fill') {
+                container.innerHTML = `
+                    <div class="cute-card p-5 space-y-4">
+                        ${topic.boxHint ? `
+                            <div class="bg-pastel-light border-2 border-dashed border-pastel-border rounded-xl p-3 text-xs text-center text-pastel-dark font-semibold">
+                                💡 <b>Từ gợi ý:</b> ${topic.boxHint}
+                            </div>
+                        ` : ''}
+                        <div class="space-y-4">
+                            ${topic.questions.map(q => `
+                                <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200" id="card_${q.id}">
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">${q.text}</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="text" id="input_${q.id}" onchange="saveAnswer('${q.id}', this.value)" 
+                                            value="${userAnswers[q.id] || ''}"
+                                            placeholder="Nhập từ..." class="cute-input px-3 py-1.5 text-sm w-full max-w-xs bg-white">
+                                        <span id="badge_${q.id}" class="hidden text-xs font-bold px-2.5 py-1 rounded-lg"></span>
+                                    </div>
+                                    <div id="exp_${q.id}" class="hidden mt-2 p-2 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs">
+                                        <b>💡 Giải thích:</b> ${q.exp}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (topic.type === 'fill_multi') {
+                container.innerHTML = `
+                    <div class="cute-card p-5 space-y-4">
+                        ${topic.questions.map(q => {
+                            let textHtml = q.text;
+                            textHtml = textHtml.replace('[1]_____', `<input type="text" id="input_${q.id}_0" onchange="saveMultiAnswer('${q.id}', 0, this.value)" value="${(userAnswers[q.id] || [])[0] || ''}" class="cute-input px-2 py-1 text-sm w-24 bg-white inline-block text-center mx-1" placeholder="[1]">`);
+                            textHtml = textHtml.replace('[2]_____', `<input type="text" id="input_${q.id}_1" onchange="saveMultiAnswer('${q.id}', 1, this.value)" value="${(userAnswers[q.id] || [])[1] || ''}" class="cute-input px-2 py-1 text-sm w-24 bg-white inline-block text-center mx-1" placeholder="[2]">`);
+
+                            return `
+                                <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200" id="card_${q.id}">
+                                    <div class="text-sm font-bold text-slate-700 mb-2 leading-relaxed">${textHtml}</div>
+                                    <div class="flex items-center gap-2">
+                                        <span id="badge_${q.id}" class="hidden text-xs font-bold px-2.5 py-1 rounded-lg"></span>
+                                    </div>
+                                    <div id="exp_${q.id}" class="hidden mt-2 p-2 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs">
+                                        <b>💡 Giải thích:</b> ${q.exp}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } else if (topic.type === 'mcq') {
+                container.innerHTML = `
+                    <div class="cute-card p-5 space-y-4">
+                        ${topic.questions.map(q => `
+                            <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200" id="card_${q.id}">
+                                <p class="text-sm font-bold text-slate-700 mb-3">${q.text}</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    ${q.opts.map(opt => {
+                                        const letter = opt.trim().charAt(0);
+                                        const isChecked = userAnswers[q.id] === letter;
+                                        return `
+                                            <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-pastel-primary transition text-xs font-semibold">
+                                                <input type="radio" name="radio_${q.id}" value="${letter}" onchange="saveAnswer('${q.id}', '${letter}')" ${isChecked ? 'checked' : ''} class="accent-pastel-primary">
+                                                <span>${opt}</span>
+                                            </label>
+                                        `;
+                                    }).join('')}
+                                </div>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <span id="badge_${q.id}" class="hidden text-xs font-bold px-2.5 py-1 rounded-lg"></span>
+                                </div>
+                                <div id="exp_${q.id}" class="hidden mt-2 p-2 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs">
+                                    <b>💡 Giải thích:</b> ${q.exp}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (topic.type === 'reading_combined') {
+                container.innerHTML = topic.sections.map(sec => `
+                    <div class="cute-card p-5 space-y-4">
+                        <h3 class="font-fredoka text-lg text-pastel-dark font-bold border-b border-pastel-border pb-2">${sec.title}</h3>
+                        <div class="bg-pastel-light p-4 rounded-xl border border-pastel-border text-xs md:text-sm leading-relaxed text-slate-700">
+                            ${sec.content}
+                        </div>
+                        <div class="space-y-4 pt-2">
+                            ${sec.questions.map(q => `
+                                <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200" id="card_${q.id}">
+                                    <p class="text-sm font-bold text-slate-700 mb-3">${q.text}</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                        ${q.opts.map(opt => {
+                                            const letter = opt.trim().charAt(0);
+                                            const isChecked = userAnswers[q.id] === letter;
+                                            return `
+                                                <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-pastel-primary transition text-xs font-semibold">
+                                                    <input type="radio" name="radio_${q.id}" value="${letter}" onchange="saveAnswer('${q.id}', '${letter}')" ${isChecked ? 'checked' : ''} class="accent-pastel-primary">
+                                                    <span>${opt}</span>
+                                                </label>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span id="badge_${q.id}" class="hidden text-xs font-bold px-2.5 py-1 rounded-lg"></span>
+                                    </div>
+                                    <div id="exp_${q.id}" class="hidden mt-2 p-2 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs">
+                                        <b>💡 Giải thích:</b> ${q.exp}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Save Answers Logic
+        function saveAnswer(qId, val) {
+            userAnswers[qId] = val.trim();
+            updateScoreBar();
+        }
+
+        function saveMultiAnswer(qId, idx, val) {
+            if (!userAnswers[qId]) userAnswers[qId] = [];
+            userAnswers[qId][idx] = val.trim();
+            updateScoreBar();
+        }
+
+        // Count Total Questions Across All Topics
+        function getTotalQuestionsCount() {
+            let total = 0;
+            topics.forEach(t => {
+                if (t.type === 'reading_combined') {
+                    t.sections.forEach(s => total += s.questions.length);
+                } else {
+                    total += t.questions.length;
+                }
+            });
+            return total;
+        }
+
+        // Update Floating Score Bar Info
+        function updateScoreBar() {
+            const total = getTotalQuestionsCount();
+            let answered = Object.keys(userAnswers).length;
+            document.getElementById('scoreDisplay').innerText = `${answered} / ${total}`;
+            document.getElementById('percentDisplay').innerText = `${Math.round((answered / total) * 100)}%`;
+        }
+
+        // Submit & Grade Everything
+        function submitAll() {
+            let totalCorrect = 0;
+            let totalQuestions = getTotalQuestionsCount();
+
+            topics.forEach(t => {
+                const questionsList = t.type === 'reading_combined' 
+                    ? t.sections.flatMap(s => s.questions) 
+                    : t.questions;
+
+                questionsList.forEach(q => {
+                    let isCorrect = false;
+                    const uAns = userAnswers[q.id];
+
+                    if (t.type === 'fill') {
+                        if (uAns) {
+                            const formattedU = uAns.toLowerCase();
+                            const formattedAns = q.ans.toLowerCase();
+                            if (formattedU === formattedAns) {
+                                isCorrect = true;
+                            } else if (q.altAns && q.altAns.some(alt => alt.toLowerCase() === formattedU)) {
+                                isCorrect = true;
+                            }
+                        }
+                    } else if (t.type === 'fill_multi') {
+                        if (Array.isArray(uAns) && uAns.length >= q.ans.length) {
+                            let matches = 0;
+                            q.ans.forEach((correctAns, idx) => {
+                                const userVal = (uAns[idx] || '').toLowerCase();
+                                if (userVal === correctAns.toLowerCase()) {
+                                    matches++;
+                                } else if (q.altAns && q.altAns[idx] && q.altAns[idx].some(alt => alt.toLowerCase() === userVal)) {
+                                    matches++;
+                                }
+                            });
+                            if (matches === q.ans.length) isCorrect = true;
+                        }
+                    } else if (t.type === 'mcq' || t.type === 'reading_combined') {
+                        if (uAns && uAns.toUpperCase() === q.ans.toUpperCase()) {
+                            isCorrect = true;
+                        }
+                    }
+
+                    if (isCorrect) totalCorrect++;
+
+                    // UI Badges & Explanations
+                    const badge = document.getElementById(`badge_${q.id}`);
+                    const exp = document.getElementById(`exp_${q.id}`);
+
+                    if (badge) {
+                        badge.classList.remove('hidden', 'bg-rose-100', 'text-rose-700', 'bg-emerald-100', 'text-emerald-700');
+                        if (isCorrect) {
+                            badge.classList.add('bg-emerald-100', 'text-emerald-700');
+                            badge.innerText = '✓ Chính xác!';
+                        } else {
+                            badge.classList.add('bg-rose-100', 'text-rose-700');
+                            badge.innerText = `✗ Chưa chính xác (Đáp án: ${Array.isArray(q.ans) ? q.ans.join(', ') : q.ans})`;
+                        }
+                    }
+
+                    if (exp) {
+                        exp.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // Calculate Final Score Percentage
+            const finalScorePercent = Math.round((totalCorrect / totalQuestions) * 100);
+
+            // Trigger Confetti if high score
+            if (finalScorePercent >= 70) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            // Show Score Modal
+            document.getElementById('modalTotal').innerText = totalQuestions;
+            document.getElementById('modalCorrect').innerText = totalCorrect;
+            document.getElementById('modalIncorrect').innerText = totalQuestions - totalCorrect;
+            document.getElementById('modalScore').innerText = `${finalScorePercent}%`;
+
+            if (finalScorePercent >= 80) {
+                document.getElementById('modalEmoji').innerText = '🎉';
+                document.getElementById('modalTitle').innerText = 'Xuất Sắc Cực Kỳ!';
+                document.getElementById('modalSub').innerText = 'Bạn học rất chăm chỉ và thông minh!';
+            } else if (finalScorePercent >= 50) {
+                document.getElementById('modalEmoji').innerText = '👏';
+                document.getElementById('modalTitle').innerText = 'Làm Tốt Tốt Lắm!';
+                document.getElementById('modalSub').innerText = 'Hãy xem lại các câu sai để ghi nhớ nhé!';
+            } else {
+                document.getElementById('modalEmoji').innerText = '💪';
+                document.getElementById('modalTitle').innerText = 'Cố Gắng Thêm Nhé!';
+                document.getElementById('modalSub').innerText = 'Đừng nản lòng, hãy đọc kỹ lời giải chi tiết bên dưới nhé!';
+            }
+
+            document.getElementById('scoreModal').classList.remove('hidden');
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('scoreModal').classList.add('hidden');
+        }
+
+        // Reset All Answers
+        function resetAll() {
+            if (confirm('Bạn có muốn làm lại tất cả không?')) {
+                userAnswers = {};
+                renderTopic(currentTopicIdx);
+                updateScoreBar();
+            }
+        }
+    </script>
+</body>
+</html>
